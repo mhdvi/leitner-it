@@ -9,6 +9,7 @@ import { sfx } from '../sfx.js';
 import { applyTheme } from '../theme.js';
 import { go } from '../router.js';
 import { estimate } from './welcome.js';
+import { listsSection } from './lists.js';
 
 export function settingsView() {
   const s = () => settings();
@@ -215,6 +216,7 @@ export function settingsView() {
       h('span.spacer'),
     ),
     learning,
+    listsSection({ row, toggle }),
     sound,
     appearance,
     data,

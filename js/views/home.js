@@ -1,7 +1,7 @@
 import { h, icon, fmt, countUp } from '../ui.js';
 import { getState, settings, dayStats, streak } from '../store.js';
 import { boxCounts, dueCounts, plan, buildSession } from '../leitner.js';
-import { WORDS } from '../words.js';
+import { activeWords } from '../words.js';
 import { boxChart } from '../charts.js';
 import { t, dateLine, pct } from '../i18n.js';
 import { go } from '../router.js';
@@ -14,7 +14,8 @@ export function homeView() {
   const due = dueCounts();
   const today = dayStats();
   const p = plan();
-  const learning = WORDS.length - counts[0];
+  const total = activeWords().all.length;
+  const learning = total - counts[0];
   const goalDone = today.goal;
   const days = streak();
 
@@ -53,7 +54,7 @@ export function homeView() {
     'section.card.boxes-card',
     h(
       'header.card-head',
-      h('div', h('h2', t('boxesTitle')), h('p.muted', t('boxesSub', { learning, notStarted: counts[0], total: WORDS.length }))),
+      h('div', h('h2', t('boxesTitle')), h('p.muted', t('boxesSub', { learning, notStarted: counts[0], total }))),
     ),
     chart,
     h('p.chart-note', t('chartNote')),

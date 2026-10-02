@@ -17,6 +17,7 @@ export const DEFAULT_SETTINGS = {
   volume: 0.7,        // sound effect volume 0..1
   theme: 'auto',      // 'auto' | 'light' | 'dark'
   ui: 'fa',           // interface language: 'fa' | 'en'
+  bank: true,         // study the built-in word bank (users may study only their own lists)
 };
 
 function fresh() {
@@ -26,7 +27,9 @@ function fresh() {
     createdAt: new Date().toISOString(),
     onboarded: false,
     settings: { ...DEFAULT_SETTINGS },
-    cards: {},     // word -> { b: box 1-5, d: due day, n: times seen, c: correct, w: wrong, t: last day }
+    cards: {},     // card key -> { b: box 1-5, d: due day, n: times seen, c: correct, w: wrong, t: last day }
+                   // built-in words use the word itself as key; list words use "<list id>:<word>"
+    lists: [],     // imported word lists: { id, name, enabled, created, words: [[word, meaning, ipa], ...] }
     days: {},      // 'YYYY-MM-DD' -> { q: answered, c: correct, goal: daily goal reached }
     sessions: [],  // recent session summaries, newest last
   };
@@ -51,6 +54,7 @@ function normalize(s) {
     ...s,
     settings: { ...DEFAULT_SETTINGS, ...(s.settings || {}) },
     cards: s.cards || {},
+    lists: Array.isArray(s.lists) ? s.lists.filter(validList) : [],
     days: s.days || {},
     sessions: Array.isArray(s.sessions) ? s.sessions : [],
   };
@@ -85,10 +89,49 @@ export function setOnboarded() {
 }
 
 export function resetProgress() {
-  const keep = state.settings;
+  const { settings: keep, lists } = state;
   state = fresh();
   state.settings = keep;
+  state.lists = lists; // lists are content, not progress
   state.onboarded = true;
+  save();
+}
+
+// ---- Word lists -------------------------------------------------------------
+
+function validList(l) {
+  return l && typeof l.id === 'string' && typeof l.name === 'string' && Array.isArray(l.words);
+}
+
+export function lists() {
+  return state.lists;
+}
+
+// Returns null (and changes nothing) if the browser has no room left to save it.
+export function addList(name, words) {
+  const list = {
+    id: 'l' + Date.now().toString(36),
+    name,
+    enabled: true,
+    created: new Date().toISOString(),
+    words,
+  };
+  state.lists.push(list);
+  if (save()) return list;
+  state.lists.pop();
+  return null;
+}
+
+export function setListEnabled(id, enabled) {
+  const list = state.lists.find((l) => l.id === id);
+  if (list) list.enabled = enabled;
+  save();
+}
+
+// Removes the list and every card that came from it.
+export function removeList(id) {
+  state.lists = state.lists.filter((l) => l.id !== id);
+  for (const key of Object.keys(state.cards)) if (key.startsWith(id + ':')) delete state.cards[key];
   save();
 }
 

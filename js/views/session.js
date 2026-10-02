@@ -121,7 +121,7 @@ export function sessionView(params) {
       h(
         'div.qcard-meta',
         badge,
-        h('span.meta-tags', [posLabel(word), LEVEL_TAGS[word.lvl]].filter(Boolean).join(' · ')),
+        h('span.meta-tags', word.listName || [posLabel(word), LEVEL_TAGS[word.lvl]].filter(Boolean).join(' · ')),
         timerEl,
       ),
       h(

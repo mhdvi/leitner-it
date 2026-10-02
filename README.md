@@ -24,6 +24,15 @@ Any static host works, including GitHub Pages. The sibling apps can live on the 
   - verbs show presente + passato prossimo with the right auxiliary (*va · è andato*, *fa · ha fatto*, *si alza · si è alzato*). Verbs that take both show both (*sale · è/ha salito*).
 - **Pronunciation.** Uses the device's Italian voice (`it-IT` preferred). Phonetics, with stress marks, come from Wiktionary.
 
+## Your own word lists
+
+Settings → Word lists lets you add your own words and study them in the same Leitner boxes.
+
+- **Adding a list.** Paste words or choose a CSV/TXT file, one `word, meaning` per line. The separator can be a comma, tab, `=`, `:` or `;`; extra columns are further meanings, and an optional last column in `/slashes/` is used as the phonetics. Write nouns with their article (*il cane*, *una casa*) and they're tinted by gender like the built-in words. There's a template to download, Excel's Windows-1256 Farsi files are read correctly, and a list holds up to 5,000 words.
+- **Studying.** New cards come from your enabled lists first, then from the built-in words. A word that is also in the built-in words is studied from your list, with your meaning. Quiz options for list words draw on the same list (when it has 12 or more words) and on the whole word bank.
+- **Switching on and off.** The built-in words and each list have a switch (at least one stays on). A switched-off list is paused and keeps its boxes. Deleting a list removes its words and their progress. Each list can be exported as CSV.
+- **Storage.** Lists are saved with your progress, so they're included in the backup file. Resetting progress keeps your lists.
+
 ## Data and licences
 
 - **Kelly list (Italian)**, Kilgarriff et al. 2014, *Language Resources and Evaluation* 48(2). Mirrored at [kotoshu/frequency-list-kelly](https://github.com/kotoshu/frequency-list-kelly). Made available for research and education, so this app should stay free and non-commercial.

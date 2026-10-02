@@ -3,7 +3,7 @@
 // Each box is reviewed on a longer interval, so well-known words come back less often.
 
 import { getState, today, recordAnswer } from './store.js';
-import { WORDS, LEVELS } from './words.js';
+import { LEVELS, activeWords } from './words.js';
 import { t } from './i18n.js';
 
 export const BOXES = 5;
@@ -19,19 +19,22 @@ export function intervalShort(box) {
   return d === 1 ? t('daily') : t('nDays', { n: d });
 }
 
-// Word counts per box: index 0 = not started yet, 1..5 = boxes.
+// Word counts per box for the words being studied (switched-off lists are paused and not counted):
+// index 0 = not started yet, 1..5 = boxes.
 export function boxCounts() {
-  const counts = [WORDS.length, 0, 0, 0, 0, 0];
-  for (const c of Object.values(getState().cards)) {
-    counts[c.b] += 1;
-    counts[0] -= 1;
-  }
+  const { cards } = getState();
+  const counts = [0, 0, 0, 0, 0, 0];
+  for (const w of activeWords().all) counts[cards[w.key]?.b || 0] += 1;
   return counts;
 }
 
 export function dueCounts(day = today()) {
+  const { cards } = getState();
   const counts = [0, 0, 0, 0, 0, 0];
-  for (const c of Object.values(getState().cards)) if (c.d <= day) counts[c.b] += 1;
+  for (const w of activeWords().all) {
+    const c = cards[w.key];
+    if (c && c.d <= day) counts[c.b] += 1;
+  }
   return counts;
 }
 
@@ -52,22 +55,26 @@ export function plan(n = getState().settings.daily) {
 export function buildSession(n) {
   const { cards, settings } = getState();
   const day = today();
-  const byWord = new Map(WORDS.map((w) => [w.w, w]));
+  const { all, custom, bank } = activeWords();
 
   // 1. Due cards, lowest box first (the ones most at risk of being forgotten), oldest due first.
-  const due = Object.entries(cards)
-    .filter(([w, c]) => c.d <= day && byWord.has(w))
-    .sort((a, b) => a[1].b - b[1].b || a[1].d - b[1].d || Math.random() - 0.5)
-    .slice(0, n)
-    .map(([w]) => byWord.get(w));
+  const due = all
+    .filter((w) => cards[w.key] && cards[w.key].d <= day)
+    .sort((a, b) => cards[a.key].b - cards[b.key].b || cards[a.key].d - cards[b.key].d || Math.random() - 0.5)
+    .slice(0, n);
 
-  // 2. Fill the rest with new words, in level order, most frequent first.
+  // 2. Fill the rest with new words: the user's own lists first (in list order),
+  //    then the bank in level order, most frequent first.
   const picked = [...due];
+  for (const w of custom) {
+    if (picked.length >= n) break;
+    if (!cards[w.key]) picked.push(w);
+  }
   if (picked.length < n) {
     for (const lvl of levelOrder(settings.level)) {
-      for (const w of WORDS) {
+      for (const w of bank) {
         if (picked.length >= n) break;
-        if (w.lvl === lvl && !cards[w.w]) picked.push(w);
+        if (w.lvl === lvl && !cards[w.key]) picked.push(w);
       }
       if (picked.length >= n) break;
     }
@@ -79,7 +86,7 @@ export function buildSession(n) {
 export function answer(word, correct) {
   const state = getState();
   const day = today();
-  const card = state.cards[word.w];
+  const card = state.cards[word.key];
   const from = card ? card.b : 0;
   // A new word answered correctly is already known, so it skips ahead to box 2.
   const to = correct ? Math.min(Math.max(from, 1) + 1, BOXES) : 1;
@@ -90,13 +97,13 @@ export function answer(word, correct) {
   next.t = day;
   if (correct) next.c += 1;
   else next.w += 1;
-  state.cards[word.w] = next;
+  state.cards[word.key] = next;
   recordAnswer(correct);
   return { from, to };
 }
 
 export function boxOf(word) {
-  return getState().cards[word.w]?.b || 0;
+  return getState().cards[word.key]?.b || 0;
 }
 
 export function shuffle(arr) {
