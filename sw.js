@@ -2,7 +2,7 @@
 // Google Fonts are cached the first time they load.
 
 const PREFIX = 'leitner-it-';
-const VERSION = PREFIX + 'v3';
+const VERSION = PREFIX + 'v4';
 const SHELL = [
   './',
   'index.html',
@@ -36,7 +36,14 @@ const SHELL = [
 const FONTS = PREFIX + 'fonts';
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(VERSION).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));
+  // cache: 'reload' skips the browser's HTTP cache (GitHub Pages sends max-age=600), so a new
+  // version never stores a stale copy of a file it was meant to replace.
+  event.waitUntil(
+    caches
+      .open(VERSION)
+      .then((c) => c.addAll(SHELL.map((url) => new Request(url, { cache: 'reload' }))))
+      .then(() => self.skipWaiting()),
+  );
 });
 
 self.addEventListener('activate', (event) => {
