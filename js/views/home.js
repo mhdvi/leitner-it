@@ -14,8 +14,8 @@ export function homeView() {
   const due = dueCounts();
   const today = dayStats();
   const p = plan();
-  const total = activeWords().all.length;
-  const learning = total - counts[0];
+  const wordTotal = activeWords().all.length;
+  const learning = wordTotal - counts[0];
   const goalDone = today.goal;
   const days = streak();
 
@@ -54,7 +54,7 @@ export function homeView() {
     'section.card.boxes-card',
     h(
       'header.card-head',
-      h('div', h('h2', t('boxesTitle')), h('p.muted', t('boxesSub', { learning, notStarted: counts[0], total }))),
+      h('div', h('h2', t('boxesTitle')), h('p.muted', t('boxesSub', { learning, notStarted: counts[0], total: wordTotal }))),
     ),
     chart,
     h('p.chart-note', t('chartNote')),
