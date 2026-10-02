@@ -1,0 +1,20 @@
+{
+  "name": "لایتنر ایتالیایی",
+  "short_name": "لایتنر ایتالیایی",
+  "description": "یادگیری ۶۰۰۰ واژه‌ی ضروری ایتالیایی (A1 تا B2) با روش جعبه‌ی لایتنر. ایتالیایی به فارسی، آفلاین و خصوصی.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f6f5f2",
+  "theme_color": "#2a78d6",
+  "lang": "fa",
+  "dir": "rtl",
+  "categories": ["education"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}
